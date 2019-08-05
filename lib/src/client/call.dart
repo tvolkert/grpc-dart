@@ -144,8 +144,10 @@ class ClientCall<Q, R> implements Response {
     if (isCancelled) return;
 
     if (options.metadataProviders.isEmpty) {
+      print('metadataProviders.isEmpty');
       _sendRequest(connection, _sanitizeMetadata(options.metadata));
     } else {
+      print('metadataProviders.isNotEmpty');
       final metadata = Map<String, String>.from(options.metadata);
       Future.forEach(
               options.metadataProviders,

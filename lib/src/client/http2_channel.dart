@@ -34,6 +34,7 @@ class ClientChannel extends ClientChannelBase {
 
   @override
   ClientConnection createConnection() {
+    print('grpc/http2_channel : createConnection()');
     return Http2ClientConnection(host, port, options);
   }
 }

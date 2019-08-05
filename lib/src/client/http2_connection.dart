@@ -70,6 +70,7 @@ class Http2ClientConnection implements connection.ClientConnection {
   ConnectionState get state => _state;
 
   Future<ClientTransportConnection> connectTransport() async {
+    final Stopwatch sw = Stopwatch()..start();
     var socket = await Socket.connect(host, port);
     if (_state == ConnectionState.shutdown) {
       socket.destroy();
@@ -87,6 +88,8 @@ class Http2ClientConnection implements connection.ClientConnection {
       }
     }
     socket.done.then((_) => _handleSocketClosed());
+    sw.stop();
+    print('grpc:http2_connection : connectTransport() took ${sw.elapsedMilliseconds}');
     return ClientTransportConnection.viaSocket(socket);
   }
 
@@ -107,6 +110,7 @@ class Http2ClientConnection implements connection.ClientConnection {
   }
 
   void dispatchCall(ClientCall call) {
+    print('grpc/http2_connection : $this(${hashCode}): dispatching call $call');
     switch (_state) {
       case ConnectionState.ready:
         _startCall(call);

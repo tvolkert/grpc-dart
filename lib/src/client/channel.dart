@@ -76,10 +76,12 @@ abstract class ClientChannelBase implements ClientChannel {
   ClientCall<Q, R> createCall<Q, R>(
       ClientMethod<Q, R> method, Stream<Q> requests, CallOptions options) {
     final call = ClientCall(method, requests, options);
-    getConnection().then((connection) {
+    () async {
+      final ClientConnection connection = await getConnection();
+      print('grpc/channel : got connection : $connection(${connection.hashCode})');
       if (call.isCancelled) return;
       connection.dispatchCall(call);
-    }, onError: call.onConnectionError);
+    }();
     return call;
   }
 }
