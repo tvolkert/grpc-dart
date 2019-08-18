@@ -79,7 +79,10 @@ abstract class ClientChannelBase implements ClientChannel {
     getConnection().then((connection) {
       if (call.isCancelled) return;
       connection.dispatchCall(call);
-    }, onError: call.onConnectionError);
+    }, onError: (error, stackTrace) {
+      print('$error\n$stackTrace');
+      call.onConnectionError(error);
+    });
     return call;
   }
 }

@@ -81,15 +81,16 @@ class Http2ClientConnection implements connection.ClientConnection {
     if (securityContext == null) {
       socket = await Socket.connect(host, port);
     } else {
-      final socket = await SecureSocket.connect(host, port,
+      final secureSocket = await SecureSocket.connect(host, port,
           supportedProtocols: ['h2'],
           context: securityContext,
           onBadCertificate: _validateBadCertificate);
-      if (socket.selectedProtocol != 'h2') {
-        socket.destroy();
+      if (secureSocket.selectedProtocol != 'h2') {
+        secureSocket.destroy();
         throw (TransportException(
             'Endpoint $host:$port does not support http/2 via ALPN'));
       }
+      socket = secureSocket;
     }
 
     final connection = ClientTransportConnection.viaSocket(socket);
@@ -127,7 +128,10 @@ class Http2ClientConnection implements connection.ClientConnection {
         pendingCalls.forEach(dispatchCall);
       }
 
-    }).catchError(_handleConnectionFailure);
+    }).catchError((error, stackTrace) {
+      print('$error\n$stackTrace');
+      _handleConnectionFailure(error);
+    });
   }
 
   /// Abandons the current connection if it is unhealthy or has been open for
